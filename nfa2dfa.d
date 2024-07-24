@@ -75,7 +75,7 @@ public Automaton toDfa( Automaton nfa){
   void dfs( Node node, ref NodeSet visited, bool dir){
     visited+= node;
     foreach( trans; node.edges.elements){
-          debug( clear) debug( 999) writeln( "+++ dfs( ", trans, ")");
+          debug( clear) debug( dbg999) writeln( "+++ dfs( ", trans, ")");
       {
         if( trans.sign == ""){
           if( node in nfa.states.finals[ !dir]) nfa.states.finals[ !dir]+= trans.sink[ dir];
@@ -88,7 +88,7 @@ public Automaton toDfa( Automaton nfa){
   const bool backward= false;
 
   // delete all states which are forward unreachable
-        debug( clear) debug( 1) writeln( "// delete all states which are forward unreachable");
+        debug( clear) debug( dbg1) writeln( "// delete all states which are forward unreachable");
   auto visited= new NodeSet;
   foreach( state; nfa.states.finals[ false].elements)
     dfs( state, visited, forward);
@@ -97,11 +97,11 @@ public Automaton toDfa( Automaton nfa){
       //writeln( ".... deleting ", state, " (forward unreachable)");
       nfa-= state;
     }
-  delete visited;
-        debug( clear) debug( 99) writeln( "nfa: ", nfa); 
+  visited.destroy();
+        debug( clear) debug( dbg99) writeln( "nfa: ", nfa); 
 
   // delete all states which are backward unreachable
-        debug( clear) debug( 1) writeln( "// delete all states which are backward unreachable");
+        debug( clear) debug( dbg1) writeln( "// delete all states which are backward unreachable");
   visited= new NodeSet;
   foreach( aFinal; nfa.states.finals[ true].elements)
     dfs( aFinal, visited, backward);
@@ -110,8 +110,8 @@ public Automaton toDfa( Automaton nfa){
       //writeln( ".... deleting ", state, " (backward unreachablei)");
       nfa-= state;
     }
-  delete visited;
-        debug( clear) debug( 98) writeln( "nfa: ", nfa); 
+  visited.destroy();
+        debug( clear) debug( dbg98) writeln( "nfa: ", nfa); 
 
   auto s= sccs( nfa);
   foreach( scc; s.elements){
@@ -122,7 +122,7 @@ public Automaton toDfa( Automaton nfa){
 
     NodeSet[ int] priority;
   { // compute the out-rank
-       debug( clear) debug(1) writeln( "// compute the out-rank");
+       debug( clear) debug(dbg1) writeln( "// compute the out-rank");
     int[ Node] bucket;
     foreach( state; nfa.states.states.elements){
       bucket[ state]= 0;
@@ -140,18 +140,18 @@ public Automaton toDfa( Automaton nfa){
           bucket[ trans.sink[false]]= bucket[ trans.sink[ true]]+1;
       }
     }
-    debug( clear) debug( 97) writeln( "bucket: ", bucket); 
+    debug( clear) debug( dbg97) writeln( "bucket: ", bucket); 
 
     // prioritize according out-rank
-        debug( clear) debug(1) writeln( "// prioritize according out-rank");
+        debug( clear) debug(dbg1) writeln( "// prioritize according out-rank");
     foreach( state, value; bucket){
-          debug( clear) debug( 999) writeln( state, " ", value);
+          debug( clear) debug( dbg999) writeln( state, " ", value);
       auto prio= bucket[ state];
       teach( (prio in priority) !is null, (priority[ prio]= new NodeSet), true); 
         // if( (prio in priority) is null) priority[ prio]= new StateSet;
       priority[ prio]+= state;
     }
-        debug( clear) debug( 96) writeln( "priority: ", priority); 
+        debug( clear) debug( dbg96) writeln( "priority: ", priority); 
 
   }
 
@@ -166,12 +166,12 @@ public Automaton toDfa( Automaton nfa){
     }
   }
   ToSingle toSingle;
-  debug(clear) debug(1) writeln( "// propagate the names and the final status"); 
+  debug(clear) debug(dbg1) writeln( "// propagate the names and the final status"); 
   {
     foreach( state; nfa.states.states.elements){
       name[ state]= new NodeSet;
       name[ state]+= state;
-          debug( clear) debug( 998) writeln("name: ", name[ state]);
+          debug( clear) debug( dbg998) writeln("name: ", name[ state]);
     }
     auto prio= 1;
     while( prio in priority){
@@ -188,11 +188,11 @@ public Automaton toDfa( Automaton nfa){
       prio++;
     }
   }
-      debug( clear) debug( 1) writeln( "nfa: ", nfa); 
+      debug( clear) debug( dbg1) writeln( "nfa: ", nfa); 
 
   { // translate transitions
-        debug( clear) debug(1) writeln( "// translate transitions");
-    //debug( clear) debug(1) writeln( name[ nfa.states.starts]);
+        debug( clear) debug(dbg1) writeln( "// translate transitions");
+    //debug( clear) debug(dbg1) writeln( name[ nfa.states.starts]);
 
     dfa= new Automaton;
     edges= new Set!Edge;
@@ -211,9 +211,9 @@ public Automaton toDfa( Automaton nfa){
     foreach( trans; nfa.transitions.elements)
       if( trans.sign != ""){
         edge= new Edge(  toSingle[ name[trans.sink[ false]]], trans.sign, toSingle[ name[ trans.sink[ true]]]);
-            debug( clear) debug( 997) writeln("!!> ", edge);
+            debug( clear) debug( dbg997) writeln("!!> ", edge);
         dfa+= edge;
-            debug( clear) debug( 997) writeln( "+++ edge added: ", dfa);
+            debug( clear) debug( dbg997) writeln( "+++ edge added: ", dfa);
         if( trans.sink[ false] in nfa.states.finals[ false]){
           dfa.states.finals[ false]+= toSingle[ name[ trans.sink[ false]]];
         }
@@ -261,9 +261,9 @@ unittest{
     nfa.starts+= s1;
     nfa.finals+= s2;
     nfa+= new Edge( s1, "", s2);
-        debug( clear) debug(1) writeln( "original: ", nfa);
+        debug( clear) debug(dbg1) writeln( "original: ", nfa);
     auto dfa= toDfa( nfa);
-        debug( clear) debug(1) writeln( "cleared: ", dfa);
+        debug( clear) debug(dbg1) writeln( "cleared: ", dfa);
   }
   { // one transition
     scope nfa= new Automaton;
@@ -272,9 +272,9 @@ unittest{
     nfa.starts+= s1;
     nfa.finals+= s2;
     nfa+= new Edge( s1, "a", s2);
-        debug( clear) debug(1) writeln( "original: ", nfa);
+        debug( clear) debug(dbg1) writeln( "original: ", nfa);
     auto dfa= toDfa( nfa);
-        debug( clear) debug(1) writeln( "cleared: ", dfa);
+        debug( clear) debug(dbg1) writeln( "cleared: ", dfa);
   }
   { // one + one transition
     scope nfa= new Automaton;
@@ -284,9 +284,9 @@ unittest{
     nfa.finals+= s2;
     nfa+= new Edge( s1, "", s2);
     nfa+= new Edge( s1, "a", s2);
-        debug( clear) debug(1) writeln( "original: ", nfa);
+        debug( clear) debug(dbg1) writeln( "original: ", nfa);
     auto dfa= toDfa( nfa);
-        debug( clear) debug(1) writeln( "cleared: ", dfa);
+        debug( clear) debug(dbg1) writeln( "cleared: ", dfa);
   }
 
   { // one + one transition
@@ -298,9 +298,9 @@ unittest{
     nfa.finals+= s3;
     nfa+= new Edge( s1, "a", s2);
     nfa+= new Edge( s2, "b", s3);
-        debug( clear) debug(0) writeln( "original: ", nfa);
+        debug( clear) debug(dbg0) writeln( "original: ", nfa);
     auto dfa= toDfa( nfa);
-        debug( clear) debug(0) writeln( "cleared: ", dfa);
+        debug( clear) debug(dbg0) writeln( "cleared: ", dfa);
   }
   +/
   { // one + one transition
@@ -320,9 +320,9 @@ unittest{
     nfa+= new Edge( s3, "", s1);
     nfa+= new Edge( s3, "a", s4);
     nfa+= new Edge( s5, "a", s1);
-        debug( clear) debug(0) writeln( "original: ", nfa);
+        debug( clear) debug(dbg0) writeln( "original: ", nfa);
     auto dfa= toDfa( nfa);
-        debug( clear) debug(0) writeln( "cleared: ", dfa);
+        debug( clear) debug(dbg0) writeln( "cleared: ", dfa);
   }
   /+ 
   +/ 

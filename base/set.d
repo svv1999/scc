@@ -15,31 +15,43 @@ import std.traits: isBuiltinType;
 class Set( T){
   bool[ T] set;
 
-  void opAddAssign( T elem){
+  //void opAddAssign( T elem){
+  void opOpAssign(string op)( T elem)
+    if (op == "+")
+  do{
     if( (elem in set) is null){
       set[ elem] = true;
       //theHash+= cast( hash_t) cast( void*) elem;
       theHash+= typeid(T).getHash(&elem);
     }
   }
-  void opAddAssign( Set set){
+  //void opAddAssign( Set set){
+  void opOpAssign(string op)( Set set)
+    if (op == "+")
+  do{
     foreach( elem; set.elements)
-     this+= elem;
+      this+= elem;
   }
-  void opSubAssign( T elem){
+  //void opSubAssign( T elem){
+  void opOpAssign(string op)( T elem)
+    if (op == "-")
+  do{
     if( (elem in set) !is null){
       set.remove( elem);
       //theHash-= cast( hash_t) cast( void*) elem;
       theHash-= typeid(T).getHash(&elem);
     }
   }
-  bool opIn_r( T elem){
+  //bool opIn_r( T elem){
+  bool opBinaryRight( string op)( T elem)
+    if (op == "in")
+  do{
     return (elem in set) !is null;
   }
   T[] elements(){
     return set.keys;
   }
-  uint length(){
+  ulong length(){
     return set.length;
   }
   T single(){

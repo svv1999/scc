@@ -37,7 +37,8 @@ class State( Transition){
   }
   alias toString= Object.toString;
   override string toString(){
-    return "s"~std.conv.to!string( id)~"";
+    import std.conv: to;
+    return "s"~to!string( id)~"";
   }
 }
 alias Transition!Alphabet Edge;
@@ -54,7 +55,7 @@ unittest{
     assert( s1 in a.states.finals[ false]); 
     assert( a.states.finals[true].length == 1); 
     assert( a.states.states.length == 2); 
-    debug(100) writeln( "original: ", a);
+    debug( dbg100) writeln( "original: ", a);
   }
   debug(automatonext) writeln( "unittest( automatonext) passed.");
 }
