@@ -1,0 +1,16 @@
+            - name: Designite Action
+  # You may pin to the exact commit or the version.
+  # uses: DesigniteTools/designite_action@e1dee84ef1c9f24cde282e88f597f7aadd663219
+  uses: DesigniteTools/designite_action@v1.6.0
+  with:
+    # Personal access token
+    PAT: # optional, default is No PAT provided
+    # Designite license key - optional
+    D_KEY: # optional, default is 
+    # DCode API key for authentication
+    API_KEY: # optional
+    # DCode project ID
+    PROJECT_ID: # optional
+    # Relative path to source code folder to be analyzed
+    FOLDER_PATH: # optional, default is 
+          
